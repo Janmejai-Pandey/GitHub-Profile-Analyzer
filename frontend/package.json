@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "lucide-react": "^1.37.0",
+    "motion": "^13.2.0",
+    "ogl": "^1.0.11",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },

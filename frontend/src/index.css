@@ -2,9 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+}
+
 body {
-  background-color: #080811;
-  color: #ffffff;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #08090e;
+  color: #ededed;
   overflow-x: hidden;
+  letter-spacing: -0.01em;
+}
+
+/* Subtle engineering grid background */
+.bg-dev-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.mask-radial-vignette {
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 80%);
 }
