@@ -22,7 +22,7 @@ class Settings:
 
     # How many of a user's repos to inspect when building dashboard/analysis
     # aggregates (keeps things fast and within rate limits).
-    MAX_REPOS_FOR_AGGREGATION: int = 100
+    MAX_REPOS_FOR_AGGREGATION: int = 30
 
 
 @lru_cache

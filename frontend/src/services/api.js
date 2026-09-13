@@ -4,7 +4,7 @@
 // Toggle USE_MOCK to false once your FastAPI backend is running on localhost:8000.
 
 const BASE_URL = "http://localhost:8000";
-export let USE_MOCK = true; // <-- set to false when backend is live on port 8000
+export let USE_MOCK = false; // <-- set to false when backend is live on port 8000
 
 // ============================================================================
 // Multi-Profile Mock Data
