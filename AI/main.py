@@ -3,7 +3,6 @@ import json
 
 from dotenv import load_dotenv
 from openai import OpenAI
-from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 
@@ -13,33 +12,39 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-api_key = os.getenv("GROQ_API_KEY")
-
-if not api_key:
-    raise ValueError("GROQ_API_KEY is not set in .env")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
 
 # -----------------------------
-# Groq client
+# Groq client (built lazily)
 # -----------------------------
 
-client = OpenAI(
-    api_key=api_key,
-    base_url="https://api.groq.com/openai/v1"
-)
+_client: OpenAI | None = None
+
+
+def _get_client() -> OpenAI:
+    """Build the Groq client on first use rather than at import time.
+
+    This module is now imported by backend/ as a plain Python module (no
+    FastAPI here anymore — that was only ever there for standalone testing).
+    Raising immediately at import time if GROQ_API_KEY is missing would crash
+    the whole backend on startup; raising lazily here means the backend only
+    fails the one request that actually needs it, with a clear error.
+    """
+    global _client
+    if _client is None:
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY is not set in .env")
+        _client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.groq.com/openai/v1",
+        )
+    return _client
 
 
 # -----------------------------
-# FastAPI application
-# -----------------------------
-
-app = FastAPI(
-    title="GitHub Profile Analyzer AI"
-)
-
-
-# -----------------------------
-# Input data model
+# Data models
 # -----------------------------
 
 class GitHubProfile(BaseModel):
@@ -49,6 +54,8 @@ class GitHubProfile(BaseModel):
     following: int = 0
     languages: dict[str, float] = Field(default_factory=dict)
     repositories: list[dict] = Field(default_factory=list)
+
+
 class BestSuitedRole(BaseModel):
     role: str
     reason: str
@@ -71,31 +78,69 @@ class AIAnalysis(BaseModel):
     resume_suggestions: list[str]
 
 
-class AnalysisResponse(BaseModel):
-    username: str
-    analysis: AIAnalysis
+SYSTEM_PROMPT = (
+    "You analyze GitHub profiles and provide "
+    "evidence-based developer career recommendations."
+)
 
-# -----------------------------
-# Health check
-# -----------------------------
+RESPONSE_JSON_SCHEMA = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "github_profile_analysis",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "developer_summary": {"type": "string"},
+                "strengths": {"type": "array", "items": {"type": "string"}},
+                "best_suited_role": {
+                    "type": "object",
+                    "properties": {
+                        "role": {"type": "string"},
+                        "reason": {"type": "string"},
+                    },
+                    "required": ["role", "reason"],
+                    "additionalProperties": False,
+                },
+                "skill_gaps": {"type": "array", "items": {"type": "string"}},
+                "recommendations": {"type": "array", "items": {"type": "string"}},
+                "projects_to_build": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "title": {"type": "string"},
+                            "description": {"type": "string"},
+                            "technologies": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
+                        },
+                        "required": ["title", "description", "technologies"],
+                        "additionalProperties": False,
+                    },
+                },
+                "readme_suggestions": {"type": "array", "items": {"type": "string"}},
+                "resume_suggestions": {"type": "array", "items": {"type": "string"}},
+            },
+            "required": [
+                "developer_summary",
+                "strengths",
+                "best_suited_role",
+                "skill_gaps",
+                "recommendations",
+                "projects_to_build",
+                "readme_suggestions",
+                "resume_suggestions",
+            ],
+            "additionalProperties": False,
+        },
+    },
+}
 
-@app.get("/")
-def root():
-    return {
-        "message": "GitHub Profile Analyzer AI is running"
-    }
 
-
-# -----------------------------
-# AI analysis endpoint
-# -----------------------------
-
-@app.post("/analyze", response_model=AnalysisResponse)
-def analyze_profile(profile: GitHubProfile):
-
-    github_data = profile.model_dump()
-
-    prompt = f"""
+def _build_prompt(github_data: dict) -> str:
+    return f"""
 You are an expert software developer and career analyst.
 
 Analyze the GitHub developer profile provided below.
@@ -160,126 +205,48 @@ GITHUB PROFILE DATA:
 Now return the analysis using the required JSON structure.
 """
 
-    response = client.chat.completions.create(
-        model="openai/gpt-oss-120b",
+
+def analyze_profile(profile: GitHubProfile) -> AIAnalysis:
+    """Send a GitHubProfile to Groq and return a validated AIAnalysis.
+
+    This is a plain sync function (matches the original sync OpenAI client).
+    Call it via `run_in_threadpool` / `asyncio.to_thread` from async code
+    (e.g. a FastAPI route) so the blocking network call doesn't stall the
+    event loop.
+    """
+    github_data = profile.model_dump()
+
+    response = _get_client().chat.completions.create(
+        model=GROQ_MODEL,
         messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": _build_prompt(github_data)},
+        ],
+        response_format=RESPONSE_JSON_SCHEMA,
+    )
+
+    analysis = json.loads(response.choices[0].message.content)
+    return AIAnalysis(**analysis)
+
+
+if __name__ == "__main__":
+    # Quick manual smoke test without FastAPI: `python main.py`
+    # (needs GROQ_API_KEY set in AI/.env)
+    sample = GitHubProfile(
+        username="octocat",
+        bio="Just an octocat.",
+        followers=5000,
+        following=10,
+        languages={"Python": 60.0, "JavaScript": 40.0},
+        repositories=[
             {
-                "role": "system",
-                "content": (
-                    "You analyze GitHub profiles and provide "
-                    "evidence-based developer career recommendations."
-                )
-            },
-            {
-                "role": "user",
-                "content": prompt
+                "name": "Hello-World",
+                "description": "My first repository",
+                "language": "Python",
+                "stargazers_count": 100,
+                "forks_count": 20,
             }
         ],
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "github_profile_analysis",
-                "strict": True,
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "developer_summary": {
-                            "type": "string"
-                        },
-                        "strengths": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "best_suited_role": {
-                            "type": "object",
-                            "properties": {
-                                "role": {
-                                    "type": "string"
-                                },
-                                "reason": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "role",
-                                "reason"
-                            ],
-                            "additionalProperties": False
-                        },
-                        "skill_gaps": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "recommendations": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "projects_to_build": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "technologies": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "required": [
-                                    "title",
-                                    "description",
-                                    "technologies"
-                                ],
-                                "additionalProperties": False
-                            }
-                        },
-                        "readme_suggestions": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "resume_suggestions": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "required": [
-                        "developer_summary",
-                        "strengths",
-                        "best_suited_role",
-                        "skill_gaps",
-                        "recommendations",
-                        "projects_to_build",
-                        "readme_suggestions",
-                        "resume_suggestions"
-                    ],
-                    "additionalProperties": False
-                }
-            }
-        }
     )
-
-    analysis = json.loads(
-        response.choices[0].message.content
-    )
-
-    return {
-        "username": profile.username,
-        "analysis": analysis
-    }
+    result = analyze_profile(sample)
+    print(result.model_dump_json(indent=2))
