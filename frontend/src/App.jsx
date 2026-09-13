@@ -1,24 +1,37 @@
 import React, { useState } from 'react';
 import { Search, ArrowRight, HelpCircle } from 'lucide-react';
+import ProfileResults from './pages/ProfileResults';
 
 export default function App() {
   const [username, setUsername] = useState('');
+  const [searchedUser, setSearchedUser] = useState(null); // null = show landing page
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (username.trim()) {
-      alert(`Searching for GitHub user: ${username}`);
-      // We will connect this to FastAPI backend in Step 2!
+      setSearchedUser(username.trim());
     }
   };
 
   const handleQuickTry = (user) => {
     setUsername(user);
+    setSearchedUser(user);
   };
 
+  const handleBackToHome = () => {
+    setSearchedUser(null);
+    setUsername('');
+  };
+
+  // ---------- RESULTS VIEW ----------
+  if (searchedUser) {
+    return <ProfileResults username={searchedUser} onBack={handleBackToHome} />;
+  }
+
+  // ---------- LANDING VIEW (your original design) ----------
   return (
     <div className="min-h-screen bg-[#080811] text-white relative overflow-hidden flex flex-col justify-between selection:bg-purple-500 selection:text-white">
-      
+
       {/* Background Radial Glow Effects */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-purple-900/30 via-indigo-800/20 to-cyan-500/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-purple-600/10 blur-[90px] rounded-full pointer-events-none" />
@@ -46,7 +59,7 @@ export default function App() {
 
       {/* 2. Main Hero Content */}
       <main className="relative z-10 max-w-4xl mx-auto w-full px-4 text-center my-auto py-12">
-        
+
         {/* Version Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-gray-300 mb-8 backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -73,7 +86,7 @@ export default function App() {
           <div className="relative group">
             {/* Glow border on hover/focus */}
             <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl blur opacity-30 group-hover:opacity-70 transition duration-300"></div>
-            
+
             <div className="relative flex items-center bg-[#0d0d1a]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl">
               <Search className="w-5 h-5 text-gray-400 ml-3 mr-2" />
               <input
@@ -96,13 +109,13 @@ export default function App() {
         {/* Quick Try Links */}
         <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
           <span>Try:</span>
-          <button 
+          <button
             onClick={() => handleQuickTry('torvalds')}
             className="text-cyan-400 hover:text-cyan-300 underline underline-offset-4 decoration-cyan-500/30 transition-colors"
           >
             torvalds
           </button>
-          <button 
+          <button
             onClick={() => handleQuickTry('gaearon')}
             className="text-cyan-400 hover:text-cyan-300 underline underline-offset-4 decoration-cyan-500/30 transition-colors"
           >
@@ -120,4 +133,4 @@ export default function App() {
 
     </div>
   );
-} 
+}
