@@ -12,7 +12,8 @@ from backend.github_client import github_client
 from backend.schemas import (
     UserProfile, RepoSummary, GitHubUserRef, Contributor, Commit,
     SearchUsersResult, SearchRepositoriesResult, DashboardStats,
-    AnalysisResponse, ErrorResponse,
+    AnalysisResponse, ErrorResponse,ContributedRepository,
+    SuggestedRepoToContribute, ContributionsResponse
 )
 
 # Make the sibling `AI` package importable (resolved relative to this
@@ -147,6 +148,142 @@ async def build_dashboard_stats(username: str) -> DashboardStats:
 @app.get("/api/dashboard/{username}", response_model=DashboardStats, responses=COMMON_ERRORS, tags=["dashboard"])
 async def get_dashboard(username: str):
     return await build_dashboard_stats(username)
+
+
+# =====================================================================
+# Contributions (external open-source activity — approximated via search,
+# since GitHub has no single endpoint for this)
+# =====================================================================
+
+def _community_rank(total: int) -> str:
+    if total >= 200:
+        return "Core Contributor"
+    if total >= 50:
+        return "Established Contributor"
+    if total >= 10:
+        return "Active Contributor"
+    if total >= 1:
+        return "Newcomer"
+    return "No external contributions yet"
+
+
+def _mock_contributions(username: str) -> ContributionsResponse:
+    """Returned instead of raising when the search calls fail (e.g. GitHub's
+    stricter search rate limit is hit) — keeps the endpoint responding with
+    a clearly-flagged placeholder rather than a hard error."""
+    return ContributionsResponse(
+        username=username,
+        community_rank="Unknown",
+        is_mock=True,
+    )
+
+
+def _repo_full_name_from_search_item(item: dict) -> str:
+    repo_url = item.get("repository_url", "")
+    return "/".join(repo_url.rstrip("/").split("/")[-2:])
+
+
+@app.get(
+    "/api/contributions/{username}",
+    response_model=ContributionsResponse,
+    responses=COMMON_ERRORS,
+    tags=["contributions"],
+)
+async def get_contributions(username: str):
+    """Approximates a developer's external open-source footprint: merged
+    PRs authored in repos they don't own, issues opened elsewhere, and PRs
+    they've reviewed — built from GitHub's search API, since there's no
+    single endpoint for "external contributions". Also suggests repos to
+    contribute to, based on the user's most-used language and open
+    "good first issue" labels.
+    """
+    await github_client.get_user(username)  # 404s here if the user doesn't exist
+
+    try:
+        merged_prs = await github_client.search_issues(
+            f"is:pr is:merged author:{username}", page=1, per_page=100
+        )
+        issues_opened = await github_client.search_issues(
+            f"is:issue author:{username}", page=1, per_page=1
+        )
+        reviewed_prs = await github_client.search_issues(
+            f"is:pr reviewed-by:{username}", page=1, per_page=1
+        )
+    except HTTPException:
+        return _mock_contributions(username)
+
+    # Group merged PRs by repo, excluding repos the user owns themselves —
+    # what's left is genuine external contribution.
+    repo_counts: Counter = Counter()
+    for item in merged_prs.get("items", []):
+        full_name = _repo_full_name_from_search_item(item)
+        owner = full_name.split("/", 1)[0] if "/" in full_name else ""
+        if full_name and owner.lower() != username.lower():
+            repo_counts[full_name] += 1
+
+    contributed_repositories: list[ContributedRepository] = []
+    for full_name, count in sorted(repo_counts.items(), key=lambda kv: kv[1], reverse=True)[:10]:
+        owner, repo = full_name.split("/", 1)
+        try:
+            repo_data = await github_client.get_repo(owner, repo)
+        except HTTPException:
+            continue
+        contributed_repositories.append(ContributedRepository(
+            name=repo_data.get("name", repo), owner=owner, full_name=full_name,
+            description=repo_data.get("description"), role="Contributor",
+            stars=repo_data.get("stargazers_count", 0), language=repo_data.get("language"),
+            contributions_count=count, url=repo_data.get("html_url", f"https://github.com/{full_name}"),
+        ))
+
+    pull_requests_merged = sum(repo_counts.values())
+
+    # Suggestions: open "good first issue" issues in the user's top
+    # language, in repos they haven't already contributed to.
+    suggested_repos_to_contribute: list[SuggestedRepoToContribute] = []
+    own_repos = await github_client.get_all_user_repos(username, settings.MAX_REPOS_FOR_AGGREGATION)
+    lang_counts = Counter(r.get("language") for r in own_repos if r.get("language"))
+    top_language = lang_counts.most_common(1)[0][0] if lang_counts else None
+
+    if top_language:
+        try:
+            good_first_issues = await github_client.search_issues(
+                f'language:{top_language} label:"good first issue" state:open', page=1, per_page=30,
+            )
+        except HTTPException:
+            good_first_issues = {"items": []}
+
+        gfi_counts: Counter = Counter()
+        for item in good_first_issues.get("items", []):
+            full_name = _repo_full_name_from_search_item(item)
+            if full_name and full_name not in repo_counts:
+                gfi_counts[full_name] += 1
+
+        for full_name, gfi_count in sorted(gfi_counts.items(), key=lambda kv: kv[1], reverse=True)[:5]:
+            owner, repo = full_name.split("/", 1)
+            try:
+                repo_data = await github_client.get_repo(owner, repo)
+            except HTTPException:
+                continue
+            suggested_repos_to_contribute.append(SuggestedRepoToContribute(
+                full_name=full_name, description=repo_data.get("description"),
+                language=repo_data.get("language"), stars=repo_data.get("stargazers_count", 0),
+                open_issues=repo_data.get("open_issues_count", 0), good_first_issues=gfi_count,
+                match_reason=f"Uses {top_language}, your most-used language, with {gfi_count} open good-first-issue(s).",
+                html_url=repo_data.get("html_url", f"https://github.com/{full_name}"),
+            ))
+
+    return ContributionsResponse(
+        username=username,
+        total_external_contributions=pull_requests_merged,
+        pull_requests_merged=pull_requests_merged,
+        issues_opened=issues_opened.get("total_count", 0),
+        code_reviews=reviewed_prs.get("total_count", 0),
+        external_repos_count=len(repo_counts),
+        community_rank=_community_rank(pull_requests_merged),
+        is_mock=False,
+        contributed_repositories=contributed_repositories,
+        suggested_repos_to_contribute=suggested_repos_to_contribute,
+    )
 
 
 # =====================================================================

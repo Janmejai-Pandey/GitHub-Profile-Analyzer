@@ -108,6 +108,40 @@ class AnalysisResponse(BaseModel):
     username: str
     analysis: AIAnalysis  # defined in AI/main.py, re-used here as-is
 
+class ContributedRepository(BaseModel):
+    name: str
+    owner: str
+    full_name: str
+    description: str | None = None
+    role: str
+    stars: int = 0
+    language: str | None = None
+    contributions_count: int = 0
+    url: str
+
+
+class SuggestedRepoToContribute(BaseModel):
+    full_name: str
+    description: str | None = None
+    language: str | None = None
+    stars: int = 0
+    open_issues: int = 0
+    good_first_issues: int = 0
+    match_reason: str
+    html_url: str
+
+
+class ContributionsResponse(BaseModel):
+    username: str
+    total_external_contributions: int = 0
+    pull_requests_merged: int = 0
+    issues_opened: int = 0
+    code_reviews: int = 0
+    external_repos_count: int = 0
+    community_rank: str
+    is_mock: bool = False
+    contributed_repositories: list[ContributedRepository] = []
+    suggested_repos_to_contribute: list[SuggestedRepoToContribute] = []
 
 class ErrorResponse(BaseModel):
     """Shape of every error response in this API (4xx/5xx)."""

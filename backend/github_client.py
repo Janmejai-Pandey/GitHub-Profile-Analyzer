@@ -113,6 +113,14 @@ class GitHubClient:
         params = self._pagination(page, per_page)
         params["q"] = query
         return (await self._get("/search/repositories", params)).json()
+    
+    async def search_issues(self, query: str, page: int, per_page: int) -> dict:
+        """Searches issues AND pull requests (GitHub treats PRs as issues
+        for search purposes) — e.g. `is:pr is:merged author:USERNAME` or
+        `is:pr reviewed-by:USERNAME`."""
+        params = self._pagination(page, per_page)
+        params["q"] = query
+        return (await self._get("/search/issues", params)).json()
 
 
 # One shared client instance, opened at import time and closed via the
