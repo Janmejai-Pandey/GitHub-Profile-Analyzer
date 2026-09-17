@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft, Users, UserPlus, BookOpen, MapPin, Building2,
   Star, GitFork, Circle, Sparkles, TrendingUp, AlertCircle,
-  Search, ExternalLink, Globe, FileText, Share2, Check, Link as LinkIcon,
+  Search, ExternalLink, Globe, FileText, Share2, Check, Link as LinkIcon, RotateCcw,
 } from 'lucide-react';
 import {
   getProfile, getRepos, getDashboard, getAIAnalysis, getOpenSourceContributions,
@@ -38,6 +38,15 @@ export default function ProfileResults({ username, onBack, onSearchUser }) {
 
   // Copy profile link toast
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Retry trigger to reliably re-run effect
+  const [retryTrigger, setRetryTrigger] = useState(0);
+
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+    setRetryTrigger((prev) => prev + 1);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -91,7 +100,7 @@ export default function ProfileResults({ username, onBack, onSearchUser }) {
     loadOpenSource();
 
     return () => { cancelled = true; };
-  }, [currentUsername, sortBy]);
+  }, [currentUsername, sortBy, retryTrigger]);
 
   const handleQuickSearchSubmit = (e) => {
     e.preventDefault();
@@ -188,7 +197,21 @@ export default function ProfileResults({ username, onBack, onSearchUser }) {
       {/* Main Content Area */}
       <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-6">
         {loading && <LoadingState />}
-        {error && !loading && <ErrorState message={error} onRetry={() => setCurrentUsername(username)} />}
+        {error && !loading && (
+          <ErrorState
+            message={error}
+            username={currentUsername}
+            onRetry={handleRetry}
+            onBack={onBack}
+            onSearchUser={(user) => {
+              if (onSearchUser) {
+                onSearchUser(user);
+              } else {
+                setCurrentUsername(user);
+              }
+            }}
+          />
+        )}
 
         {!loading && !error && profile && (
           <>
@@ -286,20 +309,82 @@ function LoadingState() {
   );
 }
 
-function ErrorState({ message, onRetry }) {
+function ErrorState({ message, username, onRetry, onBack, onSearchUser }) {
+  const [newQuery, setNewQuery] = useState('');
+
+  const handleInlineSearch = (e) => {
+    e.preventDefault();
+    if (newQuery.trim() && onSearchUser) {
+      onSearchUser(newQuery.trim());
+    }
+  };
+
+  const is404 =
+    message?.toLowerCase().includes('not found') ||
+    message?.includes('404');
+
   return (
-    <div className="flex flex-col items-center justify-center py-32 gap-3 text-center">
-      <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/20 mb-2">
-        <AlertCircle className="w-8 h-8 text-red-400" />
+    <div className="flex flex-col items-center justify-center py-20 gap-4 text-center max-w-md mx-auto px-4">
+      <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 mb-1 shadow-lg shadow-red-500/5">
+        <AlertCircle className="w-10 h-10 text-red-400" />
       </div>
-      <p className="text-white font-semibold text-lg">Unable to analyze profile</p>
-      <p className="text-gray-400 text-sm max-w-sm">{message}</p>
-      <button
-        onClick={onRetry}
-        className="mt-4 px-4 py-2 rounded-xl text-xs font-medium bg-white/10 hover:bg-white/15 border border-white/10 text-white transition-colors"
-      >
-        Try Again
-      </button>
+
+      <div>
+        <h2 className="text-white font-bold text-xl tracking-tight">
+          {is404 ? 'Profile Not Found' : 'Unable to analyze profile'}
+        </h2>
+        <p className="text-gray-400 text-xs sm:text-sm mt-1 leading-relaxed">
+          {is404 ? (
+            <>
+              GitHub user <span className="text-white font-mono bg-white/10 px-1.5 py-0.5 rounded font-semibold">{username}</span> could not be found. Please check for spelling mistakes.
+            </>
+          ) : (
+            message
+          )}
+        </p>
+      </div>
+
+      {/* Inline Quick Search Input to fix typos immediately */}
+      {onSearchUser && (
+        <form onSubmit={handleInlineSearch} className="w-full relative mt-2">
+          <input
+            type="text"
+            value={newQuery}
+            onChange={(e) => setNewQuery(e.target.value)}
+            placeholder="Try another username (e.g. torvalds)..."
+            className="w-full bg-white/[0.05] border border-white/15 focus:border-purple-500/60 rounded-xl px-4 py-2.5 pl-10 pr-20 text-sm text-white placeholder-gray-500 outline-none transition-all shadow-inner"
+          />
+          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
+          <button
+            type="submit"
+            disabled={!newQuery.trim()}
+            className="absolute right-1.5 top-1.5 bottom-1.5 px-3 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:opacity-30 disabled:hover:bg-purple-600 text-white text-xs font-medium transition-colors cursor-pointer disabled:cursor-not-allowed"
+          >
+            Search
+          </button>
+        </form>
+      )}
+
+      {/* Action Buttons: Try Again & Back to Home */}
+      <div className="flex items-center gap-3 mt-2">
+        <button
+          onClick={onRetry}
+          className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/15 border border-white/15 text-white transition-all flex items-center gap-2 shadow-sm cursor-pointer active:scale-95"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Try Again
+        </button>
+
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Home
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -562,6 +647,17 @@ function DashboardSection({ dashboard }) {
 }
 
 function AIInsightsSection({ analysis, loading }) {
+  const data = analysis?.analysis || analysis || null;
+  const summaryText =
+    data?.developer_summary ||
+    data?.summary ||
+    '';
+  const strengths = data?.strengths || [];
+  const suggestedTech =
+    data?.suggested_technologies ||
+    data?.recommendations ||
+    [];
+
   return (
     <div className="bg-gradient-to-br from-purple-900/20 via-indigo-900/15 to-cyan-900/10 border border-white/10 rounded-2xl p-6 mb-8 backdrop-blur-md relative overflow-hidden">
       <div className="flex items-center justify-between mb-4">
@@ -580,36 +676,39 @@ function AIInsightsSection({ analysis, loading }) {
         </div>
       )}
 
-      {!loading && analysis && (
+      {!loading && (
         <>
           <p className="text-gray-300 text-sm mb-5 leading-relaxed font-normal">
-            {analysis.summary}
+            {summaryText ||
+              "Profile synthesis generated from public repository contributions, primary language distributions, and commit frequency."}
           </p>
 
           <div className="space-y-4">
-            <div>
-              <p className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">
-                Demonstrated Strengths
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {analysis.strengths?.map((s) => (
-                  <span
-                    key={s}
-                    className="text-xs bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-cyan-300 font-medium"
-                  >
-                    {s}
-                  </span>
-                ))}
+            {strengths.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">
+                  Demonstrated Strengths
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {strengths.map((s) => (
+                    <span
+                      key={s}
+                      className="text-xs bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-cyan-300 font-medium"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {analysis.suggested_technologies?.length > 0 && (
+            {suggestedTech.length > 0 && (
               <div>
                 <p className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">
                   Suggested Technologies to Accelerate Growth
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {analysis.suggested_technologies.map((t) => (
+                  {suggestedTech.map((t) => (
                     <span
                       key={t}
                       className="text-xs bg-purple-500/10 border border-purple-500/25 px-3 py-1 rounded-lg text-purple-300 font-mono"

@@ -28,7 +28,8 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
     );
   }
 
-  if (!analysis) return null;
+  const data = analysis?.analysis || analysis;
+  if (!data) return null;
 
   const handleCopyBullet = (text, index) => {
     navigator.clipboard.writeText(text);
@@ -37,8 +38,8 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
   };
 
   const handleCopyAll = () => {
-    if (!analysis.resume_suggestions?.length) return;
-    const allText = analysis.resume_suggestions.map((b) => `• ${b}`).join('\n');
+    if (!data.resume_suggestions?.length) return;
+    const allText = data.resume_suggestions.map((b) => `• ${b}`).join('\n');
     navigator.clipboard.writeText(allText);
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 2000);
@@ -71,7 +72,7 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
       </div>
 
       {/* 1. Best-Suited Developer Role Banner */}
-      {analysis.best_suited_role && (
+      {data.best_suited_role && (
         <div className="my-6 bg-gradient-to-r from-purple-900/30 via-indigo-900/20 to-cyan-900/20 border border-purple-500/30 rounded-xl p-5 relative overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
@@ -83,10 +84,10 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
                   Best-Suited Developer Role
                 </span>
                 <h4 className="text-xl font-bold text-white mt-0.5 tracking-tight">
-                  {analysis.best_suited_role.role}
+                  {data.best_suited_role.role}
                 </h4>
                 <p className="text-xs text-gray-300 mt-1.5 leading-relaxed max-w-2xl">
-                  {analysis.best_suited_role.reason}
+                  {data.best_suited_role.reason}
                 </p>
               </div>
             </div>
@@ -110,7 +111,7 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
             Identified Skill Gaps & Observability
           </h4>
           <div className="space-y-2.5">
-            {analysis.skill_gaps?.map((gap, i) => (
+            {data.skill_gaps?.map((gap, i) => (
               <div key={i} className="flex items-start gap-2.5 text-xs text-gray-300 bg-amber-500/[0.04] border border-amber-500/15 rounded-lg p-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
                 <span className="leading-relaxed">{gap}</span>
@@ -126,7 +127,7 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
             Strategic Recommendations
           </h4>
           <div className="space-y-2.5">
-            {analysis.recommendations?.map((rec, i) => (
+            {data.recommendations?.map((rec, i) => (
               <div key={i} className="flex items-start gap-2.5 text-xs text-gray-300 bg-cyan-500/[0.04] border border-cyan-500/15 rounded-lg p-2.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 mt-0.5 shrink-0" />
                 <span className="leading-relaxed">{rec}</span>
@@ -137,7 +138,7 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
       </div>
 
       {/* 3. What to Build Next / Suggested Projects */}
-      {analysis.projects_to_build?.length > 0 && (
+      {data.projects_to_build?.length > 0 && (
         <div className="my-6 pt-5 border-t border-white/5">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -152,7 +153,7 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {analysis.projects_to_build.map((project, i) => (
+            {data.projects_to_build.map((project, i) => (
               <div
                 key={i}
                 className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-purple-500/30 rounded-xl p-4 transition-all duration-200 flex flex-col justify-between"
@@ -186,14 +187,14 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
       )}
 
       {/* 4. Profile & README Suggestions */}
-      {analysis.readme_suggestions?.length > 0 && (
+      {data.readme_suggestions?.length > 0 && (
         <div className="my-6 pt-5 border-t border-white/5">
           <h4 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-cyan-400" />
             GitHub Profile & README Enhancements
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {analysis.readme_suggestions.map((sugg, i) => (
+            {data.readme_suggestions.map((sugg, i) => (
               <div
                 key={i}
                 className="bg-white/[0.02] border border-white/10 rounded-xl p-3.5 text-xs text-gray-300 flex items-start gap-2.5 leading-relaxed"
@@ -209,7 +210,7 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
       )}
 
       {/* 5. Resume-Ready Bullet Points */}
-      {analysis.resume_suggestions?.length > 0 && (
+      {data.resume_suggestions?.length > 0 && (
         <div className="mt-6 pt-5 border-t border-white/5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
             <div>
@@ -241,7 +242,7 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
           </div>
 
           <div className="space-y-3">
-            {analysis.resume_suggestions.map((bullet, i) => (
+            {data.resume_suggestions.map((bullet, i) => (
               <div
                 key={i}
                 className="bg-white/[0.02] hover:bg-white/[0.04] border border-white/10 rounded-xl p-3.5 transition-colors flex items-start justify-between gap-4 group"
