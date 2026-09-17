@@ -926,9 +926,34 @@ export async function getDashboard(username) {
 export async function getAIAnalysis(username) {
   if (USE_MOCK) {
     const userData = resolveMockUser(username);
-    return delay(userData.aiAnalysis, 900); // simulate realistic AI generation time
+    const mockAi = userData.aiAnalysis;
+    return delay({
+      ...mockAi,
+      summary: mockAi.developer_summary || mockAi.summary,
+      developer_summary: mockAi.developer_summary || mockAi.summary,
+    }, 800);
   }
-  return request(`/api/analysis/${username}`, { method: "POST" });
+
+  try {
+    const res = await request(`/api/analysis/${username}`, { method: "POST" });
+    // Backend returns { username: "...", analysis: { developer_summary, ... } }
+    const raw = res?.analysis || res;
+    return {
+      ...raw,
+      summary: raw.developer_summary || raw.summary || '',
+      developer_summary: raw.developer_summary || raw.summary || '',
+    };
+  } catch (err) {
+    console.warn("Backend AI analysis returned an error or GROQ_API_KEY is not set. Using fallback AI summary:", err);
+    const userData = resolveMockUser(username);
+    const mockAi = userData.aiAnalysis;
+    return {
+      ...mockAi,
+      summary: mockAi.developer_summary || mockAi.summary,
+      developer_summary: mockAi.developer_summary || mockAi.summary,
+      is_fallback: true,
+    };
+  }
 }
 
 /**
