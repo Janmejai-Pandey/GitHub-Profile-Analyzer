@@ -46,7 +46,6 @@ export default function App() {
     setUsername('');
   };
 
-  // ---------- RESULTS VIEW ----------
   if (searchedUser) {
     return (
       <ProfileResults
@@ -58,11 +57,8 @@ export default function App() {
     );
   }
 
-  // ---------- LANDING VIEW ----------
   return (
     <div className="min-h-screen bg-[#080811] text-white relative overflow-hidden flex flex-col justify-between selection:bg-purple-500 selection:text-white">
-
-      {/* Fullscreen Interactive WebGL Galaxy */}
       <div className="absolute inset-0 z-0">
         <Galaxy
           focal={[0.5, 0.5]}
@@ -84,23 +80,25 @@ export default function App() {
         />
       </div>
 
-      {/* 1. Clean Header */}
       <header className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <div className="bg-white/10 p-1.5 rounded-lg backdrop-blur-md border border-white/10 flex items-center justify-center">
             <svg className="w-5 h-5 fill-white" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
             </svg>
           </div>
-          <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-            gh·analyse
-          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="font-extrabold text-xl tracking-wider bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+              GHOST
+            </span>
+            <span className="hidden sm:inline-block text-xs font-mono text-gray-400 border-l border-white/10 pl-2.5">
+              GitHub has officially seen truth
+            </span>
+          </div>
         </div>
       </header>
 
-      {/* 2. Main Hero Content */}
       <main className="relative z-10 max-w-4xl mx-auto w-full px-4 text-center my-auto py-8 sm:py-12">
-        {/* Version Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-gray-300 mb-6 sm:mb-8 backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span>ENGINEERING TELEMETRY</span>
@@ -108,7 +106,6 @@ export default function App() {
           <span className="text-cyan-400">v3.0</span>
         </div>
 
-        {/* Interactive Hero Title with VariableProximity */}
         <div ref={titleContainerRef} className="cursor-default select-none mb-4 sm:mb-6">
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.1]">
             <VariableProximity
@@ -134,15 +131,12 @@ export default function App() {
           </h1>
         </div>
 
-        {/* Hero Subtitle */}
         <p className="text-gray-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-normal px-2">
           Inspect repository velocity, upstream open-source pull requests, language telemetry, and AI career intelligence in seconds.
         </p>
 
-        {/* 3. Search Bar Form */}
         <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-6 px-2">
           <div className="relative group">
-            {/* Glow border on hover/focus */}
             <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-300" />
 
             <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-[#0d0d1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl gap-2 sm:gap-0">
@@ -196,13 +190,12 @@ export default function App() {
         </div>
       </main>
 
-      {/* 4. Minimalist Clean Footer */}
       <footer className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 border-t border-white/5">
         <div>
-          GitHub Profile Analyzer • Built with React 19, Tailwind CSS & Vite
+          GHOST — GitHub has officially seen truth
         </div>
         <div>
-          <span>Dark Theme (#080811)</span>
+          <span>Engineering Telemetry & AI Career Intelligence</span>
         </div>
       </footer>
     </div>
