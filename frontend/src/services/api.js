@@ -1,10 +1,5 @@
-// src/services/api.js
-//
-// Central place for all backend calls.
-// Toggle USE_MOCK to false once your FastAPI backend is running on localhost:8000.
-
 const BASE_URL = "http://localhost:8000";
-export let USE_MOCK = false; // <-- set to false when backend is live on port 8000
+export let USE_MOCK = false;
 
 // ============================================================================
 // Multi-Profile Mock Data
@@ -956,16 +951,11 @@ export async function getAIAnalysis(username) {
   }
 }
 
-/**
- * Fetch Open-Source Contribution Analysis
- * (Mocked until teammate Janmejai finishes backend endpoint)
- */
 export async function getOpenSourceContributions(username) {
   if (USE_MOCK) {
     const userData = resolveMockUser(username);
     return delay(userData.openSource, 600);
   }
-  // Fallback to mock if endpoint doesn't exist yet on backend
   try {
     return await request(`/api/contributions/${username}`);
   } catch {

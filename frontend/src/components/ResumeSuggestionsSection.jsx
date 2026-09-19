@@ -47,10 +47,8 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
 
   return (
     <section id="resume-section" className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-8 backdrop-blur-md relative overflow-hidden">
-      {/* Glow Effects */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-indigo-600/10 via-purple-600/10 to-transparent blur-3xl pointer-events-none" />
 
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600/20 to-pink-500/20 border border-white/15 flex items-center justify-center shadow-inner">
@@ -71,7 +69,6 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
         </div>
       </div>
 
-      {/* 1. Best-Suited Developer Role Banner */}
       {data.best_suited_role && (
         <div className="my-6 bg-gradient-to-r from-purple-900/30 via-indigo-900/20 to-cyan-900/20 border border-purple-500/30 rounded-xl p-5 relative overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -102,9 +99,7 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
         </div>
       )}
 
-      {/* 2. Grid: Skill Gaps & Strategic Recommendations */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-6">
-        {/* Skill Gaps & Areas for Improvement */}
         <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4.5">
           <h4 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-3">
             <AlertTriangle className="w-4 h-4 text-amber-400" />
@@ -120,7 +115,6 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
           </div>
         </div>
 
-        {/* Actionable Recommendations */}
         <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4.5">
           <h4 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-3">
             <Lightbulb className="w-4 h-4 text-cyan-400" />
@@ -137,7 +131,6 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
         </div>
       </div>
 
-      {/* 3. What to Build Next / Suggested Projects */}
       {data.projects_to_build?.length > 0 && (
         <div className="my-6 pt-5 border-t border-white/5">
           <div className="flex items-center justify-between mb-4">
@@ -186,7 +179,6 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
         </div>
       )}
 
-      {/* 4. Profile & README Suggestions */}
       {data.readme_suggestions?.length > 0 && (
         <div className="my-6 pt-5 border-t border-white/5">
           <h4 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-3">
@@ -209,7 +201,6 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
         </div>
       )}
 
-      {/* 5. Resume-Ready Bullet Points */}
       {data.resume_suggestions?.length > 0 && (
         <div className="mt-6 pt-5 border-t border-white/5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">

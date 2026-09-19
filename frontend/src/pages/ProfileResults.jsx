@@ -24,22 +24,13 @@ export default function ProfileResults({ username, onBack, onSearchUser }) {
   const [openSourceLoading, setOpenSourceLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Filter/Sort state for repo list
   const [sortBy, setSortBy] = useState('updated');
   const [languageFilter, setLanguageFilter] = useState('all');
   const [repoSearchQuery, setRepoSearchQuery] = useState('');
-
-  // Top nav quick search
   const [quickSearch, setQuickSearch] = useState('');
-
-  // Followers / Following Modal
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState('followers');
-
-  // Copy profile link toast
   const [copiedLink, setCopiedLink] = useState(false);
-
-  // Retry trigger to reliably re-run effect
   const [retryTrigger, setRetryTrigger] = useState(0);
 
   const handleRetry = () => {
@@ -164,8 +155,11 @@ export default function ProfileResults({ username, onBack, onSearchUser }) {
                   <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
                 </svg>
               </div>
-              <span className="font-bold text-sm tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-                gh·analyse
+              <span className="font-extrabold text-base tracking-wider bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+                GHOST
+              </span>
+              <span className="hidden md:inline-block text-[11px] font-mono text-gray-500 border-l border-white/10 pl-2">
+                GitHub has officially seen truth
               </span>
             </div>
           </div>
@@ -215,7 +209,6 @@ export default function ProfileResults({ username, onBack, onSearchUser }) {
 
         {!loading && !error && profile && (
           <>
-            {/* Quick Section Jump Bar */}
             <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-4 scrollbar-none text-xs text-gray-400">
               <a href="#overview-section" className="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:text-white transition-colors shrink-0">
                 Overview & Stats
@@ -234,30 +227,24 @@ export default function ProfileResults({ username, onBack, onSearchUser }) {
               </a>
             </div>
 
-            {/* Profile Header */}
             <ProfileHeader
               profile={profile}
               onOpenFollowers={() => openFollowers('followers')}
               onOpenFollowing={() => openFollowers('following')}
             />
 
-            {/* Developer Dashboard (Stars, Forks, Top Languages, Most Starred & Forked) */}
             <div id="overview-section">
               <DashboardSection dashboard={dashboard} />
             </div>
 
-            {/* AI Insights Card */}
             <div id="ai-insights-section">
               <AIInsightsSection analysis={analysis} loading={aiLoading} />
             </div>
 
-            {/* Open-Source Contribution Analysis Section */}
             <OpenSourceSection data={openSource} loading={openSourceLoading} />
 
-            {/* Resume & Profile Optimization Section */}
             <ResumeSuggestionsSection analysis={analysis} loading={aiLoading} />
 
-            {/* Repositories Section */}
             <div id="repos-section">
               <ReposSection
                 repos={visibleRepos}
