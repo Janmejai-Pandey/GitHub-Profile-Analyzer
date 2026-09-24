@@ -159,7 +159,7 @@ export default function ProfileResults({ username, onBack, onSearchUser }) {
                 GHOST
               </span>
               <span className="hidden md:inline-block text-[11px] font-mono text-gray-500 border-l border-white/10 pl-2">
-                GitHub has officially seen truth
+                GitHub Has Officially Seen Truth
               </span>
             </div>
           </div>

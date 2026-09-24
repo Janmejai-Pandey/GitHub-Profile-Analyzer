@@ -15,7 +15,7 @@
 ## 🌟 Key Features
 
 ### 🌌 Interactive Visual Experience
-- **Interactive WebGL Galaxy**: Smooth, interactive starfield with physics-based mouse repulsion and focal tracking powered by `ogl`.
+- **Cosmic Parallax Starfield & Horizon**: 3-layer GPU-accelerated parallax star drift with atmospheric glow and curved orbital horizon, creating an authentic cinematic aesthetic without heavy canvas overhead.
 - **Variable Font Physics**: Hero header dynamically adjusts letter weights in real-time as your cursor moves across the viewport.
 - **Glassmorphism Dark Theme**: Dark aesthetic (`#080811`) with micro-animations and responsive layout.
 

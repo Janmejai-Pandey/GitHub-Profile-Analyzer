@@ -1,13 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, ArrowRight, Shuffle } from 'lucide-react';
 import ProfileResults from './pages/ProfileResults';
-import Galaxy from './components/Galaxy';
-import VariableProximity from './components/VariableProximity';
+import CosmicParallaxBg from './components/CosmicParallaxBg';
 
 export default function App() {
   const [username, setUsername] = useState('');
   const [searchedUser, setSearchedUser] = useState(null); // null = show landing page
-  const titleContainerRef = useRef(null);
   const searchInputRef = useRef(null);
 
   // Global keyboard shortcuts (/ to focus search)
@@ -59,24 +57,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#080811] text-white relative overflow-hidden flex flex-col justify-between selection:bg-purple-500 selection:text-white">
-      <div className="absolute inset-0 z-0">
-        <Galaxy
-          focal={[0.5, 0.5]}
-          rotation={[1.0, 0.0]}
-          starSpeed={0.5}
-          density={1}
-          hueShift={140}
-          speed={1.0}
-          mouseInteraction={true}
-          glowIntensity={0.3}
-          saturation={0.0}
-          mouseRepulsion={true}
-          repulsionStrength={2}
-          twinkleIntensity={0.3}
-          rotationSpeed={0.1}
-          autoCenterRepulsion={0}
-          transparent={true}
-          lightMode={false}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <CosmicParallaxBg
+          head="GHOST"
+          text="GitHub, has, officially, seen, truth"
+          loop={true}
+          showHorizon={true}
+          showTitle={false}
+          className="w-full h-full"
         />
       </div>
 
@@ -92,112 +80,77 @@ export default function App() {
               GHOST
             </span>
             <span className="hidden sm:inline-block text-xs font-mono text-gray-400 border-l border-white/10 pl-2.5">
-              GitHub has officially seen truth
+              GitHub Has Officially Seen Truth
             </span>
           </div>
         </div>
       </header>
 
-      <main className="relative z-10 max-w-4xl mx-auto w-full px-4 text-center my-auto py-8 sm:py-12">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-gray-300 mb-6 sm:mb-8 backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>ENGINEERING TELEMETRY</span>
-          <span className="text-gray-500">•</span>
-          <span className="text-cyan-400">v3.0</span>
-        </div>
-
-        <div ref={titleContainerRef} className="cursor-default select-none mb-4 sm:mb-6">
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.1]">
-            <VariableProximity
-              label="Deep-Dive Any"
-              className="text-white block"
-              fromFontVariationSettings="'wght' 400, 'opsz' 14"
-              toFontVariationSettings="'wght' 1000, 'opsz' 40"
-              containerRef={titleContainerRef}
-              radius={120}
-              falloff="gaussian"
-            />
-            <span className="bg-gradient-to-r from-violet-300 via-purple-200 to-cyan-300 bg-clip-text text-transparent drop-shadow-sm inline-block">
-              <VariableProximity
-                label="GitHub Profile."
-                className="bg-gradient-to-r from-violet-300 via-purple-200 to-cyan-300 bg-clip-text text-transparent inline-block"
-                fromFontVariationSettings="'wght' 500, 'opsz' 14"
-                toFontVariationSettings="'wght' 1000, 'opsz' 40"
-                containerRef={titleContainerRef}
-                radius={120}
-                falloff="gaussian"
-              />
-            </span>
+      <main className="relative z-20 max-w-4xl mx-auto w-full px-4 flex-1 flex flex-col justify-between items-center py-6 sm:py-10">
+        {/* Above Horizon: Cinematic GHOST title sitting right above the atmospheric glow */}
+        <div className="w-full flex-1 flex flex-col justify-end items-center pb-8 sm:pb-12">
+          <h1 className="cosmic-title">
+            GHOST
           </h1>
         </div>
 
-        <p className="text-gray-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-normal px-2">
-          Inspect repository velocity, upstream open-source pull requests, language telemetry, and AI career intelligence in seconds.
-        </p>
+        {/* Below Horizon: Search bar & Quick Try sitting on the planet's dark curvature */}
+        <div className="w-full flex-1 flex flex-col justify-start items-center pt-8 sm:pt-12">
+          <form onSubmit={handleSearch} className="max-w-xl w-full mx-auto mb-5 px-2">
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-2xl blur-md opacity-35 group-hover:opacity-75 transition duration-300" />
 
-        <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-6 px-2">
-          <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-300" />
-
-            <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-[#0d0d1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl gap-2 sm:gap-0">
-              <div className="flex items-center flex-1 px-1">
-                <Search className="w-5 h-5 text-gray-400 ml-2 mr-2 shrink-0" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter a GitHub username (e.g. torvalds, gaearon)..."
-                  className="w-full bg-transparent text-white placeholder-gray-500 text-sm sm:text-base focus:outline-none py-1.5"
-                />
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="hidden sm:inline-block text-[10px] font-mono text-gray-500 bg-white/5 px-2 py-1 rounded border border-white/10">
-                  / to focus
-                </span>
-                <button
-                  type="submit"
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-medium px-5 py-2.5 rounded-xl transition-all duration-200 text-sm shadow-lg hover:shadow-cyan-500/20 active:scale-[0.98]"
-                >
-                  <span>Analyse</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+              <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-[#090b14]/90 backdrop-blur-xl border border-white/15 rounded-2xl p-2 shadow-2xl gap-2 sm:gap-0">
+                <div className="flex items-center flex-1 px-1">
+                  <Search className="w-5 h-5 text-cyan-400 ml-2 mr-2 shrink-0" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter a GitHub username..."
+                    className="w-full bg-transparent text-white placeholder-gray-500 text-sm sm:text-base focus:outline-none py-1.5 font-medium"
+                  />
+                </div>
+                <div className="flex items-center shrink-0">
+                  <button
+                    type="submit"
+                    disabled={!username.trim()}
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 disabled:opacity-40 disabled:hover:from-cyan-500 text-white font-medium px-5 py-2.5 rounded-xl transition-all duration-200 text-sm shadow-lg hover:shadow-cyan-500/25 active:scale-[0.98]"
+                  >
+                    <span>Analyse</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </form>
+          </form>
 
-        {/* Quick Try Pills & Random Creator */}
-        <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-gray-400 px-2">
-          <span>Quick Try:</span>
-          {['torvalds', 'gaearon', 'shadcn'].map((user) => (
+          {/* Quick Try Pills & Random Creator */}
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-gray-400 px-2">
+            <span className="text-gray-400 font-medium">Quick Try:</span>
+            {['torvalds', 'gaearon', 'shadcn'].map((user) => (
+              <button
+                key={user}
+                type="button"
+                onClick={() => handleQuickTry(user)}
+                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-cyan-400 hover:text-cyan-300 font-mono transition-colors active:scale-95"
+              >
+                @{user}
+              </button>
+            ))}
             <button
-              key={user}
-              onClick={() => handleQuickTry(user)}
-              className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-cyan-400 hover:text-cyan-300 font-mono transition-colors active:scale-95"
+              type="button"
+              onClick={handleRandomUser}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:text-purple-200 transition-colors active:scale-95 text-xs font-medium"
+              title="Analyze a random notable open-source developer"
             >
-              @{user}
+              <Shuffle className="w-3 h-3" />
+              <span>Random Creator</span>
             </button>
-          ))}
-          <button
-            onClick={handleRandomUser}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:text-purple-200 transition-colors active:scale-95 text-xs font-medium"
-            title="Analyze a random notable open-source developer"
-          >
-            <Shuffle className="w-3 h-3" />
-            <span>Random Creator</span>
-          </button>
+          </div>
         </div>
       </main>
-
-      <footer className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 border-t border-white/5">
-        <div>
-          GHOST — GitHub has officially seen truth
-        </div>
-        <div>
-          <span>Engineering Telemetry & AI Career Intelligence</span>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -1,0 +1,188 @@
+/* CosmicParallaxBg.css - Modern, High-Performance Parallax Cosmic Starfield */
+
+.cosmic-parallax-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 100%, #111124 0%, #080811 70%, #05050a 100%);
+}
+
+/* Star layer 1 (tiny, fast, deep space) */
+.cosmic-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  animation: animStar 55s linear infinite;
+  animation-iteration-count: var(--animation-iteration, infinite);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.cosmic-stars::after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  box-shadow: inherit;
+}
+
+/* Star layer 2 (medium, midground) */
+.cosmic-stars-medium {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  border-radius: 50%;
+  animation: animStar 110s linear infinite;
+  animation-iteration-count: var(--animation-iteration, infinite);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.cosmic-stars-medium::after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  border-radius: 50%;
+  box-shadow: inherit;
+}
+
+/* Star layer 3 (large, foreground, gentle twinkle) */
+.cosmic-stars-large {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 3px;
+  background: transparent;
+  border-radius: 50%;
+  animation: animStar 165s linear infinite;
+  animation-iteration-count: var(--animation-iteration, infinite);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.cosmic-stars-large::after {
+  content: " ";
+  position: absolute;
+  top: 2000px;
+  left: 0;
+  width: 3px;
+  height: 3px;
+  background: transparent;
+  border-radius: 50%;
+  box-shadow: inherit;
+}
+
+/* Upward Star Drift Keyframes */
+@keyframes animStar {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-2000px);
+  }
+}
+
+/* Atmospheric Horizon Glow - Perfectly centered across the middle */
+.cosmic-horizon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140vw;
+  min-width: 1200px;
+  height: 280px;
+  border-radius: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+
+.cosmic-horizon .cosmic-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.45) 0%, rgba(14, 165, 233, 0.25) 35%, rgba(99, 102, 241, 0.12) 60%, transparent 80%);
+  box-shadow: 0 0 100px 30px rgba(56, 189, 248, 0.35), 0 0 180px 70px rgba(14, 165, 233, 0.2);
+  filter: blur(14px);
+}
+
+/* Atmospheric Earth Arc - Curved planetary surface in lower half */
+.cosmic-earth {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 170vw;
+  min-width: 1400px;
+  height: 900px;
+  background: radial-gradient(ellipse at 50% 0%, #0c0d18 0%, #080811 40%, #040408 100%);
+  border-radius: 100%;
+  border-top: 1px solid rgba(147, 197, 253, 0.65);
+  box-shadow: 
+    0 -3px 25px rgba(56, 189, 248, 0.55),
+    0 -12px 60px rgba(14, 165, 233, 0.25),
+    inset 0 4px 30px rgba(56, 189, 248, 0.12);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Cinematic GHOST Title - Matches Image 1's EASEMIZ styling */
+.cosmic-title {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(3rem, 7.5vw, 6.2rem);
+  font-weight: 300;
+  letter-spacing: clamp(0.35em, 1.8vw, 0.65em);
+  text-indent: clamp(0.35em, 1.8vw, 0.65em);
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 45%, #94A3B8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 40px rgba(56, 189, 248, 0.35));
+  margin: 0;
+  line-height: 1.1;
+  user-select: none;
+  transition: filter 0.4s ease, transform 0.4s ease;
+}
+
+.cosmic-title:hover {
+  filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 55px rgba(56, 189, 248, 0.55));
+  transform: scale(1.015);
+}
+
+.cosmic-subtitle {
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
+  letter-spacing: 0.25em;
+  color: #94a3b8;
+}
+
+.cosmic-subtitle span {
+  display: inline-block;
+  opacity: 0.9;
+  transition: color 0.3s ease;
+}
+
+.cosmic-subtitle span:hover {
+  color: #67e8f9;
+}
