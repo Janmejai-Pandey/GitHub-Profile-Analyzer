@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  FileText, Briefcase, Sparkles, CheckCircle2, AlertTriangle,
+  FileText, Briefcase, Sparkles, CheckCircle2, AlertTriangle, AlertCircle,
   Lightbulb, Copy, Check, Code2, ArrowUpRight, Award, Compass,
 } from 'lucide-react';
 
@@ -99,34 +99,62 @@ export default function ResumeSuggestionsSection({ analysis, loading }) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-6">
-        <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4.5">
-          <h4 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-3">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            Identified Skill Gaps & Observability
-          </h4>
-          <div className="space-y-2.5">
-            {data.skill_gaps?.map((gap, i) => (
-              <div key={i} className="flex items-start gap-2.5 text-xs text-gray-300 bg-amber-500/[0.04] border border-amber-500/15 rounded-lg p-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
-                <span className="leading-relaxed">{gap}</span>
-              </div>
-            ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-6 items-stretch">
+        {/* Identified Skill Gaps Card */}
+        <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-5 sm:p-6 flex flex-col justify-between h-full">
+          <div>
+            <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-white/5">
+              <h4 className="text-sm font-semibold text-gray-200 flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                  <AlertTriangle className="w-4 h-4" />
+                </div>
+                <span>Identified Skill Gaps & Observability</span>
+              </h4>
+              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                {data.skill_gaps?.length || 0} Gaps
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {data.skill_gaps?.map((gap, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 min-h-[44px] text-xs text-gray-200 bg-amber-500/[0.04] border border-amber-500/15 rounded-xl p-3 hover:border-amber-500/30 transition-colors"
+                >
+                  <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+                  <span className="leading-relaxed flex-1">{gap}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4.5">
-          <h4 className="text-sm font-semibold text-gray-200 flex items-center gap-2 mb-3">
-            <Lightbulb className="w-4 h-4 text-cyan-400" />
-            Strategic Recommendations
-          </h4>
-          <div className="space-y-2.5">
-            {data.recommendations?.map((rec, i) => (
-              <div key={i} className="flex items-start gap-2.5 text-xs text-gray-300 bg-cyan-500/[0.04] border border-cyan-500/15 rounded-lg p-2.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 mt-0.5 shrink-0" />
-                <span className="leading-relaxed">{rec}</span>
-              </div>
-            ))}
+        {/* Strategic Recommendations Card */}
+        <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-5 sm:p-6 flex flex-col justify-between h-full">
+          <div>
+            <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-white/5">
+              <h4 className="text-sm font-semibold text-gray-200 flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                  <Lightbulb className="w-4 h-4" />
+                </div>
+                <span>Strategic Recommendations</span>
+              </h4>
+              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                {data.recommendations?.length || 0} Action Items
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {data.recommendations?.map((rec, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 min-h-[44px] text-xs text-gray-200 bg-cyan-500/[0.04] border border-cyan-500/15 rounded-xl p-3 hover:border-cyan-500/30 transition-colors"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                  <span className="leading-relaxed flex-1">{rec}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
