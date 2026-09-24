@@ -3,7 +3,7 @@
 // Central place for all backend calls.
 // Toggle USE_MOCK to false once your FastAPI backend is running on localhost:8000.
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "https://ghost-backend-h4vl.onrender.com";
 export let USE_MOCK = false; // <-- set to false when backend is live on port 8000
 
 // ============================================================================

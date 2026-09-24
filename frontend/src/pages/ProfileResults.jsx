@@ -165,7 +165,7 @@ export default function ProfileResults({ username, onBack, onSearchUser }) {
                 </svg>
               </div>
               <span className="font-bold text-sm tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-                gh·analyse
+                GHOST
               </span>
             </div>
           </div>
